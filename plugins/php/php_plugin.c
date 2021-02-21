@@ -73,11 +73,7 @@ struct uwsgi_option uwsgi_php_options[] = {
 };
 
 
-#ifdef UWSGI_PHP7
 static size_t sapi_uwsgi_ub_write(const char *str, size_t str_length TSRMLS_DC)
-#else
-static int sapi_uwsgi_ub_write(const char *str, uint str_length TSRMLS_DC)
-#endif
 {
 	struct wsgi_request *wsgi_req = (struct wsgi_request *) SG(server_context);
 
@@ -123,11 +119,7 @@ static int sapi_uwsgi_send_headers(sapi_headers_struct *sapi_headers TSRMLS_DC)
 	return SAPI_HEADER_SENT_SUCCESSFULLY;
 }
 
-#ifdef UWSGI_PHP7
 static size_t sapi_uwsgi_read_post(char *buffer, size_t count_bytes TSRMLS_DC)
-#else
-static int sapi_uwsgi_read_post(char *buffer, uint count_bytes TSRMLS_DC)
-#endif
 {
 	uint read_bytes = 0;
 	
@@ -253,9 +245,6 @@ PHP_MINIT_FUNCTION(uwsgi_php_minit) {
 			char *name = usl->value;
 			char *strval = equal + 1;
 			equal = NULL;
-#ifndef UWSGI_PHP7
-			name_len = name_len + 1;
-#endif
 			zend_register_string_constant(name, name_len, strval, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 		}
 		usl = usl->next;
@@ -264,11 +253,7 @@ PHP_MINIT_FUNCTION(uwsgi_php_minit) {
 }
 
 PHP_FUNCTION(uwsgi_version) {
-#ifdef UWSGI_PHP7
 	RETURN_STRING(UWSGI_VERSION);
-#else
-	RETURN_STRING(UWSGI_VERSION, 1);
-#endif
 }
 
 PHP_FUNCTION(uwsgi_worker_id) {
@@ -354,11 +339,7 @@ PHP_FUNCTION(uwsgi_cache_get) {
 	if (value) {
 		char *ret = estrndup(value, valsize);
 		free(value);
-#ifdef UWSGI_PHP7
 		RETURN_STRING(ret);
-#else
-		RETURN_STRING(ret, 0);
-#endif
 	}
 	RETURN_NULL();
 }
@@ -462,11 +443,7 @@ PHP_FUNCTION(uwsgi_rpc) {
 		// here we do not free varargs for performance reasons
 		char *ret = estrndup(response, size);
 		free(response);
-#ifdef UWSGI_PHP7
 		RETURN_STRING(ret);
-#else
-		RETURN_STRING(ret, 0);
-#endif
         }
 
 clear:
